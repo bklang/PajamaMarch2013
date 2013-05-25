@@ -1,4 +1,4 @@
-#define MAX_DUTY_CYCLE 32
+#define MAX_DUTY_CYCLE 150
 #define TOP_PIN 6
 #define SWITCH_PIN 8
 // Debounce in microseconds
