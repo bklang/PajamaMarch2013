@@ -7,23 +7,12 @@
 #define RATE_PIN A0
 #define RATE_SCALE 50
 
-const int slow_delay = 25;
-const int med_delay = 15;
-const int fast_delay = 5;
-const int no_delay = 1;
-
-const int slow_fade = 40;
-const int med_fade = 15;
-const int fast_fade = 5;
-const int no_fade = 1;
-
 int pinValues[14]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int pinDirections[14] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int currentPin = 0;
 int upperPin = 6;
 int lowerPin = 5;
 int lastAnimation = 0;
-int lastDelay = 0;
 int currentDirection = 0;
 int switchCount = 0;
 int switchPosition = 0;
@@ -42,47 +31,41 @@ void loop()
 {
   int i, pin, rate;
   
-  lastDelay++;
-  if (lastDelay > no_delay) {
-    // Reset delay counter
-    lastDelay = 0;
+  // Check if switch has moved
+  if (digitalRead(SWITCH_PIN) != switchPosition) {
+    delayMicroseconds(DEBOUNCE_DELAY);
 
-    // Check if switch has moved
+    // read again to ensure we are not bouncing
     if (digitalRead(SWITCH_PIN) != switchPosition) {
-      delayMicroseconds(DEBOUNCE_DELAY);
-
-      // read again to ensure we are not bouncing
-      if (digitalRead(SWITCH_PIN) != switchPosition) {
-        switchPosition = digitalRead(SWITCH_PIN);
-        switchCount++;
-        if (switchCount >= MODE_COUNT) {
-          switchCount = 0;
-        }
+      switchPosition = digitalRead(SWITCH_PIN);
+      switchCount++;
+      if (switchCount >= MODE_COUNT) {
+        switchCount = 0;
       }
     }
+  }
 
-    rate = max(analogRead(RATE_PIN) / RATE_SCALE, 1);
-    // Run the current animation
-    switch(switchCount) {
-    case 0:
-      fade_run(rate);
-      break;
-    case 1:
-      fade_split(rate);
-      break;
-    case 2:
-      shimmer(rate);
-      break;
-    case 3:
-      hard_random(rate);
-      break;
-    case 4:
-      light_random(rate);
-      break;
-    case 5:
-      fade_random(rate);
-      break;
-    }
+  rate = max(analogRead(RATE_PIN) / RATE_SCALE, 1);
+  // Run the current animation
+  switch(switchCount) {
+  case 0:
+    fade_run(rate);
+    break;
+  case 1:
+    fade_split(rate);
+    break;
+  case 2:
+    shimmer(rate);
+    break;
+  case 3:
+    hard_random(rate);
+    break;
+  case 4:
+    light_random(rate);
+    break;
+  case 5:
+    fade_random(rate);
+    break;
   }
 
   // Pulse the LEDs
