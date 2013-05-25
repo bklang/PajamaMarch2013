@@ -61,7 +61,7 @@ void loop()
       }
     }
 
-    rate = analogRead(RATE_PIN) / RATE_SCALE;
+    rate = max(analogRead(RATE_PIN) / RATE_SCALE, 1);
     // Run the current animation
     switch(switchCount) {
     case 0:
