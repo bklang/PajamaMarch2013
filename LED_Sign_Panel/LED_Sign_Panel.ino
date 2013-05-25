@@ -38,12 +38,13 @@ void setup() {
   // Prepare displays
   // The first number represents how the buffer/display is stored in memory. Could be useful for reorganising the displays or matching the physical layout
   // The number is a array index and is sequential from 0. You can't use 4-8. You must use the numbers 0-4
-// The second number represents the "CS" pin (ie: CS1, CS2, CS3, CS4) this controls which panel is enabled at any one time. 
+  // The second number represents the "CS" pin (ie: CS1, CS2, CS3, CS4) this controls which panel is enabled at any one time. 
   disp.setMaster(0,4);
   disp.setSlave(1,5);
   disp.setSlave(2,6);
   disp.setSlave(3,7);
-  // Write directly to the display
+
+  // Briefly light the entire panel to show any non-working LEDs
   for(int y=0; y < Y_MAX; ++y)	{
     for(int x = 0; x< X_MAX; ++x) {
       toolbox.setPixel(x, y, 1, true); // Lets write straight to the display.
@@ -55,20 +56,17 @@ void setup() {
 void loop()
 {
 
- char digits[64];
-
-// snprintf(digits, sizeof(digits) - 1, "X/Y: %d/%d", X_MAX, Y_MAX);
-// scrollText(digits, false);
-// delay(2000); 
+  char digits[64];
 	
-   if(Serial.available()){
-     int i = 0;
-       delay(100);
-       while( Serial.available() && i< sizeof(text)-1) {
-          text[i++] = Serial.read();
-       }
-       text[i-1]='\0';
+  if(Serial.available()){
+    int i = 0;
+    delay(100);
+    while( Serial.available() && i< sizeof(text)-1) {
+      text[i++] = Serial.read();
     }
+    text[i-1]='\0';
+  }
+
   snprintf(text, sizeof(text) - 1, "Seed & Feed @ Spoleto 2013!");
   scrollText(text, true);
   snprintf(text, sizeof(text) - 1, "Next Gig: 12:00 Sat 24th @ Marion Square");
@@ -76,7 +74,6 @@ void loop()
   //snprintf(digits, sizeof(digits) - 1, "Free Memory: %d", get_free_memory());
   //scrollText(digits, false);
   delay(2000);
-  
 }
 
 void scrollText(char* text, int pastEnd) {
