@@ -4,6 +4,8 @@
 // Debounce in microseconds
 #define DEBOUNCE_DELAY 50000
 #define MODE_COUNT 6
+#define RATE_PIN A0
+#define RATE_SCALE 50
 
 const int slow_delay = 25;
 const int med_delay = 15;
@@ -38,7 +40,7 @@ void setup()
 
 void loop()
 {
-  int i, pin;
+  int i, pin, rate;
   
   lastDelay++;
   if (lastDelay > no_delay) {
@@ -59,25 +61,26 @@ void loop()
       }
     }
 
+    rate = analogRead(RATE_PIN) / RATE_SCALE;
     // Run the current animation
     switch(switchCount) {
     case 0:
-      shimmer(med_fade);
+      fade_run(rate);
       break;
     case 1:
-      light_random(fast_fade);
+      fade_split(rate);
       break;
     case 2:
-      hard_random(fast_fade);
+      shimmer(rate);
       break;
     case 3:
-      fade_run(slow_fade);
+      hard_random(rate);
       break;
     case 4:
-      fade_split(med_fade);
+      light_random(rate);
       break;
     case 5:
-      fade_random(fast_fade);
+      fade_random(rate);
       break;
     }
   }
