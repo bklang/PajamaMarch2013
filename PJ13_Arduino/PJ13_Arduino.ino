@@ -7,6 +7,16 @@
 #define RATE_PIN A0
 #define RATE_SCALE 50
 
+const int slow_delay = 25;
+const int med_delay = 15;
+const int fast_delay = 5;
+const int no_delay = 1;
+
+const int slow_fade = 40;
+const int med_fade = 15;
+const int fast_fade = 5;
+const int no_fade = 1;
+
 int pinValues[14]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int pinDirections[14] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int currentPin = 0;
@@ -31,6 +41,25 @@ void loop()
 {
   int i, pin, rate;
   
+  checkSwitch();
+
+  rate = max(analogRead(RATE_PIN) / RATE_SCALE, 1);
+  animate(rate);
+
+  // Pulse the LEDs
+  for (i = 0; i <= 255; i++) {
+    for (pin = 0; pin <= TOP_PIN; pin++) {
+      if (pinValues[pin] > i && i < MAX_DUTY_CYCLE) {
+        lighton(pin);
+      } else {
+        lightoff(pin);
+      }
+    }
+  }
+}
+
+void checkSwitch()
+{
   // Check if switch has moved
   if (digitalRead(SWITCH_PIN) != switchPosition) {
     delayMicroseconds(DEBOUNCE_DELAY);
@@ -44,8 +73,10 @@ void loop()
       }
     }
   }
+}
 
-  rate = max(analogRead(RATE_PIN) / RATE_SCALE, 1);
+void animate(int rate)
+{
   // Run the current animation
   switch(switchCount) {
   case 0:
@@ -66,17 +97,6 @@ void loop()
   case 5:
     fade_random(rate);
     break;
-  }
-
-  // Pulse the LEDs
-  for (i = 0; i <= 255; i++) {
-    for (pin = 0; pin <= TOP_PIN; pin++) {
-      if (pinValues[pin] > i && i < MAX_DUTY_CYCLE) {
-        lighton(pin);
-      } else {
-        lightoff(pin);
-      }
-    }
   }
 }
 
