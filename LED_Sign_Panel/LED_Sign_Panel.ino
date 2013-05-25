@@ -26,11 +26,21 @@ extern int __bss_end;
 extern int *__brkval;
 
 // Text placeholder
-char text[128];
+#define MESSAGE_COUNT 4
+char messages[4][256];
+int messageIndex = 0;
 
 void setup() {
+  int i = 0;
   Serial.begin(9600); 
-
+  
+  // Initialize messages to empty
+  for (i = 0; i < MESSAGE_COUNT; i++) {
+    snprintf(messages[i], sizeof(messages[i]) - 1, "");
+  }
+    
+  snprintf(messages[0], sizeof(messages[0]) - 1, "Seed & Feed @ Spoleto 2013!");
+  snprintf(messages[1], sizeof(messages[1]) - 1, "Next Gig: Noon Sat 24th @ Marion Square");
   // Fetch bounds
   X_MAX = disp.getDisplayCount() * disp.getDisplayWidth();
   Y_MAX = disp.getDisplayHeight();
@@ -55,22 +65,21 @@ void setup() {
 //
 void loop()
 {
-
+  int i = 0;
   char digits[64];
 	
-  if(Serial.available()){
-    int i = 0;
-    delay(100);
-    while( Serial.available() && i< sizeof(text)-1) {
-      text[i++] = Serial.read();
-    }
-    text[i-1]='\0';
-  }
+//  if(Serial.available()){
+//    int i = 0;
+//    delay(100);
+//    while( Serial.available() && i< sizeof(text)-1) {
+//      text[i++] = Serial.read();
+//    }
+//    text[i-1]='\0';
+//  }
 
-  snprintf(text, sizeof(text) - 1, "Seed & Feed @ Spoleto 2013!");
-  scrollText(text, true);
-  snprintf(text, sizeof(text) - 1, "Next Gig: 12:00 Sat 24th @ Marion Square");
-  scrollText(text, true);
+  for (i = 0; i < MESSAGE_COUNT; i++) {
+    scrollText(messages[i], true);
+  }
   //snprintf(digits, sizeof(digits) - 1, "Free Memory: %d", get_free_memory());
   //scrollText(digits, false);
   delay(2000);
