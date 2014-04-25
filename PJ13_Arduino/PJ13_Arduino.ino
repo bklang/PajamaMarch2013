@@ -1,11 +1,24 @@
+// Amount of time that lights are on, max 255
 #define MAX_DUTY_CYCLE 150
+
+// Highest pin used for LED strips
 #define TOP_PIN 6
+
+// Animation changer
 #define SWITCH_PIN 8
 // Debounce in microseconds
 #define DEBOUNCE_DELAY 50000
-#define MODE_COUNT 6
+#define MODE_COUNT 7
+
+// Animation speed
 #define RATE_PIN A0
-#define RATE_SCALE 50
+#define RATE_SCALE 10
+
+// Audio inputs
+#define MIC_PIN A1
+#define MIC_DC_OFFSET 0
+#define NOISE_FLOOR 100
+#define SAMPLES 60
 
 const int slow_delay = 25;
 const int med_delay = 15;
@@ -26,6 +39,9 @@ int lastAnimation = 0;
 int currentDirection = 0;
 int switchCount = 0;
 int switchPosition = 0;
+int vol[SAMPLES]; // collection of prior audio samples
+int lvl = 10;     // current "dampled" audio level
+int oldLevels[3] = {10,10,10};
 
 void setup()
 {
@@ -33,17 +49,24 @@ void setup()
   for (i = 0; i <= TOP_PIN; i++) {
     pinMode(i, OUTPUT);
   } 
+  // TEMP hack to map audio to on-board LED
+  pinMode(13, OUTPUT);
+
   pinMode(SWITCH_PIN, INPUT);
   switchPosition = digitalRead(SWITCH_PIN);
+  memset(vol, 0, sizeof(vol)); 
 }
 
 void loop()
 {
   int i, pin, rate;
+
   
   checkSwitch();
 
   rate = max(analogRead(RATE_PIN) / RATE_SCALE, 1);
+
+
   animate(rate);
 
   // Pulse the LEDs
@@ -56,6 +79,17 @@ void loop()
       }
     }
   }
+}
+
+int getLevel(int lastLvl)
+{
+  int n, lvl;
+  n = analogRead(MIC_PIN); // Raw reading from mic
+  n = abs(n - 512 - MIC_DC_OFFSET); // Center on zero
+  n = (n <= NOISE_FLOOR) ? 0 : (n - NOISE_FLOOR); // Remove noise/hum
+  lvl = ((lastLvl * 7) + n) >> 3; // "Dampened" reading (else looks twitchy)
+  lvl = lvl > 255 ? 255 : lvl;
+  return lvl;
 }
 
 void checkSwitch()
@@ -80,23 +114,42 @@ void animate(int rate)
   // Run the current animation
   switch(switchCount) {
   case 0:
-    fade_run(rate);
+    reactive(rate);
     break;
   case 1:
-    fade_split(rate);
+    fade_run(rate);
     break;
   case 2:
-    shimmer(rate);
+    fade_split(rate);
     break;
   case 3:
-    hard_random(rate);
+    shimmer(rate);
     break;
   case 4:
-    light_random(rate);
+    hard_random(rate);
     break;
   case 5:
+    light_random(rate);
+    break;
+  case 6:
     fade_random(rate);
     break;
+  }
+}
+
+void reactive(int delay) {
+  lastAnimation++;
+  if (lastAnimation >= delay) {
+    lastAnimation = 0;
+    lvl = getLevel(lvl);
+    pinValues[3] = lvl;
+    pinValues[2] = pinValues[4] = oldLevels[0];
+    pinValues[1] = pinValues[5] = oldLevels[1];
+    pinValues[0] = pinValues[6] = oldLevels[2];
+
+    oldLevels[2] = oldLevels[1];
+    oldLevels[1] = oldLevels[0];
+    oldLevels[0] = lvl;
   }
 }
 
