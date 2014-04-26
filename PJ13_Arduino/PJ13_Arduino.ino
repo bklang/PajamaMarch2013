@@ -84,6 +84,7 @@ int getLevel(int lastLvl)
   n = analogRead(MIC_PIN); // Raw reading from mic
   n = abs(n - 512 - MIC_DC_OFFSET); // Center on zero
   n = (n <= NOISE_FLOOR) ? 0 : (n - NOISE_FLOOR); // Remove noise/hum
+  n = n / 20; // Inside a drum is a noisy place
   lvl = ((lastLvl * 7) + n) >> 3; // "Dampened" reading (else looks twitchy)
   lvl = min(lvl, 255);
   return lvl;
