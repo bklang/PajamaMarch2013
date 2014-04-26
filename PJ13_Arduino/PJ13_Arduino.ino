@@ -85,7 +85,7 @@ int getLevel(int lastLvl)
   n = abs(n - 512 - MIC_DC_OFFSET); // Center on zero
   n = (n <= NOISE_FLOOR) ? 0 : (n - NOISE_FLOOR); // Remove noise/hum
   lvl = ((lastLvl * 7) + n) >> 3; // "Dampened" reading (else looks twitchy)
-  lvl = lvl > 255 ? 255 : lvl;
+  lvl = min(lvl, 255);
   return lvl;
 }
 
