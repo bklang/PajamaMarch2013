@@ -40,7 +40,7 @@ int currentDirection = 0;
 int switchCount = 0;
 int switchPosition = 0;
 int vol[SAMPLES]; // collection of prior audio samples
-int lvl = 10;     // current "dampled" audio level
+int lvl = 10;     // current "dampend" audio level
 int oldLevels[3] = {10,10,10};
 
 void setup()
@@ -49,8 +49,6 @@ void setup()
   for (i = 0; i <= TOP_PIN; i++) {
     pinMode(i, OUTPUT);
   } 
-  // TEMP hack to map audio to on-board LED
-  pinMode(13, OUTPUT);
 
   pinMode(SWITCH_PIN, INPUT);
   switchPosition = digitalRead(SWITCH_PIN);
@@ -65,7 +63,6 @@ void loop()
   checkSwitch();
 
   rate = max(analogRead(RATE_PIN) / RATE_SCALE, 1);
-
 
   animate(rate);
 
