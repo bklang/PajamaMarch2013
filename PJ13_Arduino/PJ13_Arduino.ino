@@ -1,5 +1,5 @@
 // Amount of time that lights are on, max 255
-#define MAX_DUTY_CYCLE 150
+#define MAX_DUTY_CYCLE 200
 
 // Highest pin used for LED strips
 #define TOP_PIN 6
